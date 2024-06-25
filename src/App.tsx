@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Space, Input, Button } from "antd";
+import { Layout, Space, Input, Button, Spin } from "antd";
 import { initializeApp } from "firebase/app";
 import {
   getDatabase,
@@ -23,17 +23,13 @@ const headerStyle: React.CSSProperties = {
 
 const contentStyle: React.CSSProperties = {
   display: "flex",
-  flex: 1,
-  alignItems: "center",
-  flexDirection: "column",
   padding: 16,
+  gap: 32,
 };
 
 const layoutStyle = {
   width: "100%",
   display: "flex",
-  height: "100vh",
-  flex: 1,
 };
 
 const firebaseConfig = {
@@ -53,85 +49,186 @@ export const updateItem = (path: any, body: any) =>
   update(ref(database, path), body);
 
 const App: React.FC = () => {
-  const [total, setTotal] = useState<number>(0);
-  const [value, setValue] = useState<string | number>(0);
+  const [totalA, setTotalA] = useState<number>(0);
+  const [valueA, setValueA] = useState<string | number>(0);
+  const [totalB, setTotalB] = useState<number>(0);
+  const [valueB, setValueB] = useState<string | number>(0);
+  const [loading, setLoading] = useState<boolean>(true);
 
-  const onChangeText = (
+  const onChangeTextA = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { target } = e;
     const { value } = target;
     const convertNumber = (value || "").replace(/\D/g, "");
-    setValue(convertNumber);
+    setValueA(convertNumber);
   };
 
-  const onAdd = () =>
-    updateItem(`/data`, {
-      total: increment(+value),
-    }).then(() => setValue(""));
+  const onChangeTextB = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { target } = e;
+    const { value } = target;
+    const convertNumber = (value || "").replace(/\D/g, "");
+    setValueB(convertNumber);
+  };
 
-  const onReset = () =>
+  const onAddA = () => {
+    setLoading(true);
     updateItem(`/data`, {
-      total: 0,
-    }).then(() => setValue(""));
+      totalA: increment(+valueA),
+    }).then(() => setValueA(""));
+  };
+
+  const onResetA = () => {
+    setLoading(true);
+    updateItem(`/data`, {
+      totalA: 0,
+    }).then(() => setValueA(""));
+  };
+
+  const onAddB = () => {
+    setLoading(true);
+    updateItem(`/data`, {
+      totalB: increment(+valueB),
+    }).then(() => setValueB(""));
+  };
+
+  const onResetB = () => {
+    setLoading(true);
+    updateItem(`/data`, {
+      totalB: 0,
+    }).then(() => setValueB(""));
+  };
 
   useEffect(() => {
-    const queryTotal = query(ref(database, `data/total`));
+    const queryTotalA = query(ref(database, `data/totalA`));
     onValue(
-      queryTotal,
+      queryTotalA,
       (snapshots) => {
         // on success
         if (snapshots.exists()) {
-          setTotal(snapshots.val());
+          setTotalA(snapshots.val());
         } else {
-          setTotal(0);
+          setTotalA(0);
         }
+        setLoading(false);
+      },
+      (err) => {
+        console.log("=====> ERROR: ", err);
+      } // on error
+    );
+    const queryTotalB = query(ref(database, `data/totalB`));
+    onValue(
+      queryTotalB,
+      (snapshots) => {
+        // on success
+        if (snapshots.exists()) {
+          setTotalB(snapshots.val());
+        } else {
+          setTotalB(0);
+        }
+        setLoading(false);
       },
       (err) => {
         console.log("=====> ERROR: ", err);
       } // on error
     );
   }, []);
-  
+
   return (
-    <div style={{ ...layoutStyle, flexDirection: "column" }}>
+    <div style={{ ...layoutStyle, flexDirection: "column", }}>
       <Header style={headerStyle}>
         <h1>Total APP</h1>
       </Header>
       <Content style={contentStyle}>
+        <div style={{ display: "flex", width: "50%", flexDirection: "column" }}>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "center",
+            }}
+          >
+            <Space.Compact style={{ width: "80%" }}>
+              <Input
+                onChange={onChangeTextA}
+                defaultValue=""
+                onPressEnter={onAddA}
+                value={valueA || ""}
+              />
+              <Button onClick={onAddA} type="primary">
+                Lưu A
+              </Button>
+            </Space.Compact>
+            <Button
+              onClick={onResetA}
+              style={{ marginLeft: 16 }}
+              danger
+              type="primary"
+            >
+              Reset A
+            </Button>
+          </div>
+          <Spin spinning={loading}>
+            <h1 style={{ fontWeight: 500 }}>
+              Total A: <span style={{ color: "green" }}>{totalA}</span>
+            </h1>
+          </Spin>
+        </div>
         <div
           style={{
             display: "flex",
-            flexDirection: "row",
-            width: "100%",
-            justifyContent: "center",
+            width: "50%",
+            flexDirection: "column",
+            alignItems: "flex-end",
           }}
         >
-          <Space.Compact style={{ width: "80%" }}>
-            <Input
-              onChange={onChangeText}
-              defaultValue=""
-              onPressEnter={onAdd}
-              value={value || ""}
-            />
-            <Button onClick={onAdd} type="primary">
-              Lưu
-            </Button>
-          </Space.Compact>
-          <Button
-            onClick={onReset}
-            style={{ marginLeft: 16 }}
-            danger
-            type="primary"
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "row",
+              width: "100%",
+              justifyContent: "center",
+            }}
           >
-            Reset
-          </Button>
+            <Space.Compact style={{ width: "80%" }}>
+              <Input
+                onChange={onChangeTextB}
+                defaultValue=""
+                onPressEnter={onAddB}
+                value={valueB || ""}
+              />
+              <Button onClick={onAddB} type="primary">
+                Lưu B
+              </Button>
+            </Space.Compact>
+            <Button
+              onClick={onResetB}
+              style={{ marginLeft: 16 }}
+              danger
+              type="primary"
+            >
+              Reset B
+            </Button>
+          </div>
+          <Spin spinning={loading}>
+            <h1 style={{ fontWeight: 500 }}>
+              Total B: <span style={{ color: "green" }}>{totalB}</span>
+            </h1>
+          </Spin>
         </div>
-
-        <h1>
-          Total: <span style={{ color: "green" }}>{total}</span>
-        </h1>
       </Content>
+      <div style={{ width: "100%", height: 1, background: "#000000" }} />
+      <div>
+        <Spin spinning={loading}>
+          <h1 style={{ color: "", fontWeight: "bold", textAlign: 'center' }}>
+            {`Total A - Total B: `}{" "}
+            <span style={{ color: "green" }}>{totalA - totalB}</span>
+          </h1>
+        </Spin>
+      </div>
     </div>
   );
 };
