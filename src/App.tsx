@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
 import React, { useEffect, useState } from "react";
 import { Layout, Space, Input, Button, TableProps, Table, Modal } from "antd";
 import {
@@ -160,7 +162,10 @@ const App: React.FC = () => {
         title="Chi tiet M"
         centered
         open={modalpen}
-        onOk={() => {}}
+        onOk={() => {
+          setCurrentKey(null);
+          setModalOpen(false);
+        }}
         onCancel={() => {
           setCurrentKey(null);
           setModalOpen(false);

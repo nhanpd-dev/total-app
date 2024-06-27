@@ -7,8 +7,8 @@ import {
   query,
   off,
   updateItem,
-  database
-} from '../../firebase';
+  database,
+} from "../../firebase";
 
 interface IProps {
   currentKey: string | null;
@@ -74,7 +74,6 @@ const ItemFC: React.FC<IItem> = ({ item, currentData, currentKey }) => {
     field: "b" | "t" | "g" | "th";
     value: number;
   }) => {
-
     if (name === "T" && currentData) {
       updateItem(`/matchs/${currentKey}`, {
         ...currentData,
@@ -184,7 +183,10 @@ const ItemFC: React.FC<IItem> = ({ item, currentData, currentKey }) => {
             style={{ marginLeft: 16 }}
             danger
             type="primary"
-            disabled={!valueA}
+            disabled={
+              !currentData ||
+              (currentData[`${item.field}`] && !currentData[`${item.field}`].t)
+            }
           >
             Reset T {item.name}
           </Button>
@@ -232,7 +234,10 @@ const ItemFC: React.FC<IItem> = ({ item, currentData, currentKey }) => {
             </Button>
           </Space.Compact>
           <Button
-            disabled={!valueB}
+            disabled={
+              !currentData ||
+              (currentData[`${item.field}`] && !currentData[`${item.field}`].x)
+            }
             onClick={() => onResetA({ name: "X", field: item.field })}
             style={{ marginLeft: 16 }}
             danger
@@ -254,8 +259,8 @@ const ItemFC: React.FC<IItem> = ({ item, currentData, currentKey }) => {
 const RowItem: React.FC<IProps> = ({ currentKey }) => {
   const [currentData, setCurrentData] = useState<Data | null>(null);
 
-  useEffect(() => { 
-    if(currentKey) {
+  useEffect(() => {
+    if (currentKey) {
       const queryTotalA = query(ref(database, `matchs/${currentKey}`));
       onValue(
         queryTotalA,
@@ -272,14 +277,11 @@ const RowItem: React.FC<IProps> = ({ currentKey }) => {
           console.log("=====> ERROR: ", err);
         } // on error
       );
-  
     }
     return () => {
       const queryTotalA = query(ref(database, `matchs/${currentKey}`));
-
-      console.log('====> s');
-      off(queryTotalA, 'value');
-    }
+      off(queryTotalA, "value");
+    };
   }, [currentKey]);
 
   return (
