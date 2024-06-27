@@ -1,58 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Space, Input, Button, Spin, TableProps, Table } from "antd";
-import { initializeApp } from "firebase/app";
+import { Space, Input, Button } from "antd";
 import {
-  getDatabase,
   ref,
-  update,
   increment,
   onValue,
   query,
-  push,
-  serverTimestamp,
   off,
-} from "firebase/database";
-
-const { Header } = Layout;
-
-const headerStyle: React.CSSProperties = {
-  color: "#fff",
-  height: 64,
-  backgroundColor: "#4096ff",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-};
-
-const contentStyle: React.CSSProperties = {
-  display: "flex",
-  padding: 16,
-  gap: 32,
-  width: "100%",
-};
-
-const layoutStyle = {
-  width: "100%",
-  display: "flex",
-};
-
-const firebaseConfig = {
-  apiKey: "AIzaSyBkEVokPydqVt1BhWdySkIAoQ4u6X6m140",
-  authDomain: "chat-app-a0220.firebaseapp.com",
-  databaseURL: "https://chat-app-a0220-default-rtdb.firebaseio.com",
-  projectId: "chat-app-a0220",
-  storageBucket: "chat-app-a0220.appspot.com",
-  messagingSenderId: "1096381292862",
-  appId: "1:1096381292862:web:022ba878f061d05a208c6f",
-  measurementId: "G-2H7MM5XGV0",
-};
-
-const app = initializeApp(firebaseConfig);
-export const database = getDatabase(app);
-export const updateItem = (path: any, body: any) =>
-  update(ref(database, path), body);
-export const createItem = (path: any, body: any) =>
-  push(ref(database, path), body);
+  updateItem,
+  database
+} from '../../firebase';
 
 interface IProps {
   currentKey: string | null;

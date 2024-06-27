@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Layout, Space, Input, Button, TableProps, Table, Modal } from "antd";
-import { initializeApp } from "firebase/app";
 import {
-  getDatabase,
-  ref,
-  update,
+  createItem,
+  database,
+  removeItem,
+  serverTimestamp,
   onValue,
   query,
-  push,
-  serverTimestamp,
-  remove,
-} from "firebase/database";
+  ref,
+} from "./firebase";
 import RowItem from "./components/row-item";
 
 const { Header } = Layout;
@@ -39,14 +37,6 @@ const firebaseConfig = {
   appId: "1:1096381292862:web:022ba878f061d05a208c6f",
   measurementId: "G-2H7MM5XGV0",
 };
-
-const app = initializeApp(firebaseConfig);
-export const database = getDatabase(app);
-export const updateItem = (path: any, body: any) =>
-  update(ref(database, path), body);
-export const createItem = (path: any, body: any) =>
-  push(ref(database, path), body);
-export const removeItem = (path: any) => remove(ref(database, `${path}`));
 
 interface DataType {
   key: string;
